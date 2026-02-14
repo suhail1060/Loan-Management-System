@@ -6,6 +6,7 @@ const pool = require('./db'); // Import our database connection
 // Import route files
 const userRoutes=require('./routes/userRoutes');
 const loanRoutes=require('./routes/loanRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 // Create Express app
 const app = express();
@@ -23,7 +24,12 @@ const PORT = 5000;
 app.get('/', (req, res) => {
     res.json({ 
         message: 'Welcome to MicroLoan API! 🚀',
-        status: 'Server is running'
+        status: 'Server is running',
+        endpoints: {
+            auth: '/api/auth',
+            users: '/api/users',
+            loans: '/api/loans'
+        }
     });
 });
 
@@ -33,6 +39,7 @@ app.get('/health', (req, res) => {
 });
 
 // Use route files
+app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/loans', loanRoutes);
 

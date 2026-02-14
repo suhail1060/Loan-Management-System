@@ -2,9 +2,10 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db'); // Import our database connection
+const { authenticateToken, requireAdmin } = require('../middleware/authMiddleware');
 
 // GET all loans with user information
-router.get('/', async (req, res) => {
+router.get('/', async (req, res) => {  
     try {
         // SQL JOIN to get loans with user details
         const result = await pool.query(`
@@ -132,6 +133,49 @@ router.get('/:id', async (req, res) => {
         res.status(500).json({
             success: false,
             error: 'Failed to fetch loan'
+        });
+    }
+});
+
+// PUT - Update loan status (ADMIN ONLY)
+router.put('/:id/status', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const loanId = req.params.id;
+        const { status } = req.body;
+        
+        // Validate status
+        const validStatuses = ['pending', 'approved', 'rejected'];
+        if (!status || !validStatuses.includes(status)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid status. Must be: pending, approved, or rejected'
+            });
+        }
+        
+        // Update loan status
+        const result = await pool.query(
+            'UPDATE loans SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
+            [status, loanId]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Loan not found'
+            });
+        }
+        
+        res.json({
+            success: true,
+            message: `Loan status updated to ${status}`,
+            data: result.rows[0]
+        });
+        
+    } catch (error) {
+        console.error('Error updating loan status:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to update loan status'
         });
     }
 });
