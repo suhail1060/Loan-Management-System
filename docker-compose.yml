@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15
@@ -12,6 +10,29 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - microloan-network
+
+  backend:
+    build: ./backend
+    container_name: microloan_backend
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password123
+      DB_NAME: microloan
+    depends_on:
+      - postgres
+    networks:
+      - microloan-network
 
 volumes:
   postgres_data:
+
+networks:
+  microloan-network:
+    driver: bridge
