@@ -1,5 +1,5 @@
-# Start with Node.js 18 as the base
-FROM node:18
+# Start with Node.js 20 as the base
+FROM node:20
 
 # Set working directory inside container
 WORKDIR /app

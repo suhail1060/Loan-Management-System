@@ -30,6 +30,18 @@ services:
     networks:
       - microloan-network
 
+  frontend:
+    build: ./frontend
+    container_name: microloan_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:5000
+    depends_on:
+      - backend
+    networks:
+      - microloan-network
+
 volumes:
   postgres_data:
 
