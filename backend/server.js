@@ -7,6 +7,7 @@ const pool = require('./db'); // Import our database connection
 const userRoutes=require('./routes/userRoutes');
 const loanRoutes=require('./routes/loanRoutes');
 const authRoutes = require('./routes/authRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 // Create Express app
 const app = express();
@@ -42,6 +43,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/loans', loanRoutes);
+app.use('/api/chat', chatRoutes);
 
 // --- START SERVER ---
 app.listen(PORT, () => {

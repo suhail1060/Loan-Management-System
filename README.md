@@ -27,6 +27,7 @@ A full-stack web application for managing loan applications with user authentica
 - ✅ **Apply for Loans** - Submit loan applications with amount and purpose
 - ✅ **View Applications** - Track status of your loan applications
 - ✅ **Dashboard** - Personalized view of all your loans
+- ✅ **AI Chatbot Assistant** - 24/7 support powered by Llama 3.2 local LLM
 
 ### Admin Features
 - ✅ **Manage All Loans** - View applications from all users
@@ -55,6 +56,7 @@ A full-stack web application for managing loan applications with user authentica
 - **PostgreSQL 15** - Relational database
 - **bcrypt** - Password hashing
 - **jsonwebtoken** - JWT authentication
+- **Ollama + Llama 3.2** - Local AI chatbot (1B parameters)
 
 ### DevOps
 - **Docker & Docker Compose** - Containerization
@@ -67,14 +69,21 @@ A full-stack web application for managing loan applications with user authentica
 │   React     │─────▶│  Express    │─────▶│ PostgreSQL  │
 │  Frontend   │◀─────│   Backend   │◀─────│  Database   │
 │  (Port 5173)│      │ (Port 5000) │      │ (Port 5432) │
-└─────────────┘      └─────────────┘      └─────────────┘
+└─────────────┘      └──────┬──────┘      └─────────────┘
+                            │
+                            ▼
+                     ┌─────────────┐
+                     │   Ollama    │
+                     │  Llama 3.2  │
+                     │(Port 11434) │
+                     └─────────────┘
 ```
 
 **Request Flow:**
 1. User interacts with React frontend
 2. Axios sends HTTP request to Express API
 3. JWT middleware validates authentication
-4. Express queries PostgreSQL database
+4. Express queries PostgreSQL database OR calls Ollama for AI chat
 5. Response sent back through the chain
 
 ## 🚀 Getting Started
@@ -103,7 +112,14 @@ A full-stack web application for managing loan applications with user authentica
    - Initialize the database
    - Start all services
 
-3. **Access the application**
+3. **Pull the AI model (first time only)**
+```bash
+   docker exec -it microloan_ollama ollama pull llama3.2:1b
+```
+
+   This downloads the Llama 3.2 model (~1.3GB) - takes 1-2 minutes.
+
+4. **Access the application**
    - Frontend: http://localhost:5173
    - Backend API: http://localhost:5000
    - Database: localhost:5432
@@ -118,6 +134,32 @@ The database is pre-seeded with test accounts:
 | `admin@example.com` | `hashed_password_456` | admin |
 
 **Note:** These passwords are hashed in the database. To create new users, use the registration page.
+
+## 🤖 AI Chatbot Features
+
+The application includes an intelligent chatbot powered by Llama 3.2 (1B parameters) running locally via Ollama.
+
+### Capabilities
+- ✅ Answers questions about loan processes
+- ✅ Explains application requirements
+- ✅ Provides loan amount information
+- ✅ Guides users through the application
+- ✅ Remembers conversation context
+- ✅ 100% private - no data sent to external APIs
+
+### How to Use
+1. Click the blue chat button (bottom-right corner)
+2. Ask questions like:
+   - "What loan amounts do you offer?"
+   - "How do I apply for a loan?"
+   - "What are the requirements?"
+   - "How long does approval take?"
+
+### Technical Details
+- **Model:** Llama 3.2 (1B parameters)
+- **Provider:** Ollama (local deployment)
+- **Features:** RAG-ready, conversation memory, system prompts
+- **Privacy:** Fully local, no external API calls
 
 ## 📡 API Documentation
 
@@ -202,6 +244,33 @@ Content-Type: application/json
 
 **Valid statuses:** `pending`, `approved`, `rejected`
 
+### Chatbot Endpoint
+
+#### Send Chat Message
+```http
+POST /api/chat
+Content-Type: application/json
+
+{
+  "message": "What loan amounts do you offer?",
+  "conversationHistory": [
+    {"role": "user", "content": "Previous message"},
+    {"role": "assistant", "content": "Previous response"}
+  ]
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "message": "We offer loans ranging from $1,000 to $1,000,000...",
+    "model": "llama3.2:1b"
+  }
+}
+```
+
 ## 📸 Screenshots
 
 ### Home Page
@@ -224,6 +293,7 @@ microloan-app/
 │   │   ├── authRoutes.js       # Authentication endpoints
 │   │   ├── userRoutes.js       # User management
 │   │   └── loanRoutes.js       # Loan CRUD operations
+│   │   └── chatRoutes.js       # AI chatbot endpoint (NEW)
 │   ├── middleware/
 │   │   └── authMiddleware.js   # JWT verification
 │   ├── utils/
@@ -235,6 +305,8 @@ microloan-app/
 │
 ├── frontend/
 │   ├── src/
+│   │   ├── components/
+│   │   │   └── ChatBot.jsx     # AI chatbot UI (NEW)
 │   │   ├── pages/
 │   │   │   ├── Login.jsx       # Login page
 │   │   │   ├── Register.jsx    # Registration page
@@ -413,6 +485,21 @@ docker compose up
 ```bash
 # Fix file permissions
 sudo chown -R $USER:$USER .
+```
+
+### Ollama Not Responding
+```bash
+# Check if Ollama container is running
+docker ps | grep ollama
+
+# View Ollama logs
+docker logs microloan_ollama
+
+# Restart Ollama
+docker compose restart ollama
+
+# Pull model again if needed
+docker exec -it microloan_ollama ollama pull llama3.2:1b
 ```
 
 ## 🤝 Contributing

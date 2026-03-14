@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import ApplyLoan from './pages/ApplyLoan';
+import ChatBot from './components/ChatBot';
 
 // Temporary Home component (we'll create a proper one soon)
 function Home() {
@@ -54,6 +55,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ChatBot />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

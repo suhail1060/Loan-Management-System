@@ -42,8 +42,19 @@ services:
     networks:
       - microloan-network
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: microloan_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    networks:
+      - microloan-network
+
 volumes:
   postgres_data:
+  ollama_models:
 
 networks:
   microloan-network:
