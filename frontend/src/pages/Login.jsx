@@ -27,6 +27,10 @@ function Login() {
     setLoading(false);
   };
 
+  const handleForgotPassword=()=> {
+    alert("Password reset feature coming soon!");
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md">
@@ -86,6 +90,8 @@ function Login() {
           <Link to="/register" className="text-blue-500 hover:text-blue-600 font-semibold">
             Register here
           </Link>
+          {' '}|{' '}
+          <button onClick={handleForgotPassword} className="text-blue-500 hover:text-blue-600 font-semibold bg-transparent border-none cursor-pointer underline-offset-auto">Forgot Password?</button>
         </div>
       </div>
     </div>
