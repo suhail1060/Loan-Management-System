@@ -28,7 +28,7 @@ function Login() {
   };
 
   const handleForgotPassword=()=> {
-    alert("Password reset feature coming soon!");
+    navigate('/forgot-password');
   }
 
   return (
