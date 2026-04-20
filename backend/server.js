@@ -8,6 +8,7 @@ const userRoutes=require('./routes/userRoutes');
 const loanRoutes=require('./routes/loanRoutes');
 const authRoutes = require('./routes/authRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const passwordResetRoutes = require('./routes/passwordResetRoutes');
 
 // Create Express app
 const app = express();
@@ -41,6 +42,7 @@ app.get('/health', (req, res) => {
 
 // Use route files
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', passwordResetRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/loans', loanRoutes);
 app.use('/api/chat', chatRoutes);
