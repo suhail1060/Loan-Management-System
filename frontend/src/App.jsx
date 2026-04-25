@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import ApplyLoan from './pages/ApplyLoan';
 import ChatBot from './components/ChatBot';
 import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 // Temporary Home component (we'll create a proper one soon)
 function Home() {
@@ -62,6 +63,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />}/>
+          <Route path="/reset-password" element={<ResetPassword />}/>
           <Route 
             path="/dashboard" 
             element={
