@@ -39,4 +39,7 @@ export const loanAPI = {
   updateStatus: (id, status) => api.put(`/api/loans/${id}/status`, { status }),
 };
 
+export const resetPassword = (token, newPassword) =>
+  api.post('/api/auth/reset-password', { token, newPassword });
+
 export default api;

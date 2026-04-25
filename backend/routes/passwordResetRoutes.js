@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
 // POST - Request password reset
 router.post('/forgot-password', async (req, res) => {
@@ -71,6 +72,60 @@ router.post('/forgot-password', async (req, res) => {
             error: 'Failed to process password reset request'
         });
     }
+});
+
+// POST /api/auth/reset-password
+router.post('/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  if (!token || !newPassword) {
+    return res.status(400).json({ message: 'Token and new password are required' });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ message: 'Password must be at least 6 characters' });
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Find valid token (not expired, not used)
+    const tokenResult = await client.query(
+      `SELECT * FROM password_resets 
+       WHERE token = $1 AND used = false AND expires_at > NOW()`,
+      [token]
+    );
+
+    if (tokenResult.rows.length === 0) {
+      client.release();
+      return res.status(400).json({ message: 'Invalid or expired reset token' });
+    }
+
+    const resetRecord = tokenResult.rows[0];
+
+    // Hash new password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update user password + mark token as used (atomic)
+    await client.query('BEGIN');
+    await client.query(
+      'UPDATE users SET password_hash = $1 WHERE id = $2',
+      [hashedPassword, resetRecord.user_id]
+    );
+    await client.query(
+      'UPDATE password_resets SET used = true WHERE id = $1',
+      [resetRecord.id]
+    );
+    await client.query('COMMIT');
+
+    client.release();
+    res.json({ message: 'Password reset successful' });
+
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 module.exports = router;
