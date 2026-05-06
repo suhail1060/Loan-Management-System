@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require('../db');
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
+const sendPasswordResetEmail = require('../utils/sendEmail');
 
 // POST - Request password reset
 router.post('/forgot-password', async (req, res) => {
@@ -51,14 +52,20 @@ router.post('/forgot-password', async (req, res) => {
         // For now, log the reset link to console
         const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`;
         
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('📧 PASSWORD RESET EMAIL (Console Mode)');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log(`To: ${user.email}`);
-        console.log(`Name: ${user.full_name}`);
-        console.log(`Reset Link: ${resetLink}`);
-        console.log(`Expires: ${expiresAt.toLocaleString()}`);
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+        // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        // console.log('📧 PASSWORD RESET EMAIL (Console Mode)');
+        // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        // console.log(`To: ${user.email}`);
+        // console.log(`Name: ${user.full_name}`);
+        // console.log(`Reset Link: ${resetLink}`);
+        // console.log(`Expires: ${expiresAt.toLocaleString()}`);
+        // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+        try {
+            await sendPasswordResetEmail(user.email, resetToken);
+        } catch (emailErr) {
+            // Keep response generic to avoid user enumeration and SMTP coupling
+            console.error('Password reset email send failed:', emailErr.message);
+        }
 
         res.json({
             success: true,
