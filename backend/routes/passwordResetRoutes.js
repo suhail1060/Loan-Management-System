@@ -60,7 +60,12 @@ router.post('/forgot-password', async (req, res) => {
         // console.log(`Reset Link: ${resetLink}`);
         // console.log(`Expires: ${expiresAt.toLocaleString()}`);
         // console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-        await sendPasswordResetEmail(user.email, resetToken);
+        try {
+            await sendPasswordResetEmail(user.email, resetToken);
+        } catch (emailErr) {
+            // Keep response generic to avoid user enumeration and SMTP coupling
+            console.error('Password reset email send failed:', emailErr.message);
+        }
 
         res.json({
             success: true,
